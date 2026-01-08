@@ -4,17 +4,17 @@ import (
 	"net/http"
 	"strconv"
 
+	"github.com/Braz-Valcann/varconfig-service/internal/domain/varconfig"
 	"github.com/Braz-Valcann/varconfig-service/internal/domain/varconfig/dto"
-	"github.com/Braz-Valcann/varconfig-service/internal/domain/varconfig/service"
 	"github.com/gin-gonic/gin"
 )
 
 type Handler struct {
-	service service.Service
+	service varconfig.IService
 }
 
-func New(service *service.Service) *Handler {
-	return &Handler{service: *service}
+func New(service varconfig.IService) *Handler {
+	return &Handler{service: service}
 }
 
 func (h *Handler) Create(c *gin.Context) {
