@@ -8,10 +8,12 @@ import (
 )
 
 type Service struct {
-	repo varconfig.Repository
+	repo varconfig.IRepository
 }
 
-func New(repo varconfig.Repository) *Service {
+var _ varconfig.IService = (*Service)(nil)
+
+func New(repo varconfig.IRepository) *Service {
 	return &Service{repo: repo}
 }
 

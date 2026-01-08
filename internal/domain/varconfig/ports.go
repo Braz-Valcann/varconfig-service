@@ -11,10 +11,18 @@ type VarConfig struct {
 	UpdateAt    string                 `json: "updateAt"`
 }
 
-type Repository interface {
+type IRepository interface {
 	Create(ctx context.Context, varConfig *VarConfig) error
 	Get(ctx context.Context, orgID, benchmarkID string, id int64) (*VarConfig, error)
 	List(ctx context.Context, orgID, benchmarkID string) ([]*VarConfig, error)
 	Update(ctx context.Context, varConfig *VarConfig) error
+	Delete(ctx context.Context, orgID, benchmarkID string, id int64) error
+}
+
+type IService interface {
+	Create(ctx context.Context, orgID, benchmarkID string, payload map[string]interface{}) (*VarConfig, error)
+	Get(ctx context.Context, orgID, benchmarkID string, id int64) (*VarConfig, error)
+	List(ctx context.Context, orgID, benchmarkID string) ([]*VarConfig, error)
+	Update(ctx context.Context, orgID, benchmarkID string, id int64, payload map[string]interface{}) (*VarConfig, error)
 	Delete(ctx context.Context, orgID, benchmarkID string, id int64) error
 }

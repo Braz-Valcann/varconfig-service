@@ -8,7 +8,7 @@ type UpdateRequest struct {
 	Payload map[string]interface{} `json:"payload" binding:"required"`
 }
 
-// A ideia é padrozinar respostar
+// A ideia é padrozinar resposta
 type Response struct {
 	ID          int64                  `json: "id"`
 	OrgID       string                 `json: "orgId"`

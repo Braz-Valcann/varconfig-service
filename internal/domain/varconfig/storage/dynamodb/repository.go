@@ -16,8 +16,8 @@ type Repository struct {
 	tableName string
 }
 
-// confirma que tu completa
-var _ varconfig.Repository = (*Repository)(nil)
+// Assertion
+var _ varconfig.IRepository = (*Repository)(nil)
 
 func New(client *dynamodb.Client, table string) *Repository {
 	return &Repository{
