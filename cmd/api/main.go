@@ -4,6 +4,7 @@ import (
 	"context"
 
 	"github.com/Braz-Valcann/varconfig-service/internal/domain/varconfig/handler"
+	"github.com/Braz-Valcann/varconfig-service/internal/domain/varconfig/handler/benchmark"
 	"github.com/Braz-Valcann/varconfig-service/internal/domain/varconfig/service"
 	dynamodbConfig "github.com/Braz-Valcann/varconfig-service/internal/domain/varconfig/storage/dynamodb"
 	"github.com/Braz-Valcann/varconfig-service/internal/http/routes"
@@ -20,10 +21,13 @@ func main() {
 	repo := dynamodbConfig.New(ddb, "var_configs")
 	service := service.New(repo)
 	handler := handler.New(service)
+	// new benchmarkHandler := benchmark.NewHandler(service)
+	benchmarkHandler := benchmark.NewHandler(service)
 
 	r := gin.Default()
 
-	routes.Register(r, handler)
+	// new benchmarkHandler
+	routes.Register(r, handler, benchmarkHandler)
 
 	r.Run(":8080")
 

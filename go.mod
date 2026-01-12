@@ -3,6 +3,8 @@ module github.com/Braz-Valcann/varconfig-service
 go 1.25.4
 
 require (
+	github.com/Wizzi-Cloud/restwrapper v0.0.0-20251020221013-841b2ba108dc
+	github.com/aws/aws-lambda-go v1.47.0
 	github.com/aws/aws-sdk-go-v2 v1.41.0
 	github.com/aws/aws-sdk-go-v2/config v1.32.6
 	github.com/aws/aws-sdk-go-v2/feature/dynamodb/attributevalue v1.20.29
@@ -12,7 +14,7 @@ require (
 
 require (
 	github.com/Wizzi-Cloud/apperror v0.0.0-20250403183749-2c2523e95aaf // indirect
-	github.com/Wizzi-Cloud/restwrapper v0.0.0-20250513191412-fb1094b3a549 // indirect
+	github.com/Wizzi-Cloud/core_interfaces v0.0.0-20250130182336-a653f9cf22b6 // indirect
 	github.com/aws/aws-sdk-go-v2/credentials v1.19.6 // indirect
 	github.com/aws/aws-sdk-go-v2/feature/ec2/imds v1.18.16 // indirect
 	github.com/aws/aws-sdk-go-v2/internal/configsources v1.4.16 // indirect
@@ -41,7 +43,7 @@ require (
 	github.com/klauspost/cpuid/v2 v2.3.0 // indirect
 	github.com/leodido/go-urn v1.4.0 // indirect
 	github.com/mattn/go-isatty v0.0.20 // indirect
-	github.com/modern-go/concurrent v0.0.0-20180228061459-e0a39a4cb421 // indirect
+	github.com/modern-go/concurrent v0.0.0-20180306012644-bacd9c7ef1dd // indirect
 	github.com/modern-go/reflect2 v1.0.2 // indirect
 	github.com/pelletier/go-toml/v2 v2.2.4 // indirect
 	github.com/quic-go/qpack v0.5.1 // indirect
