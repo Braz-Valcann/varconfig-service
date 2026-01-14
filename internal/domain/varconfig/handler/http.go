@@ -28,7 +28,7 @@ func (h *Handler) Create(c *gin.Context) {
 	orgID := c.Param("orgId")
 	benchmarkID := c.Param("benchmark_id")
 
-	varConfig, err := h.service.Create(c.Request.Context(), orgID, benchmarkID, req.Payload)
+	varConfig, err := h.service.Create(orgID, benchmarkID, req.Payload)
 
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
@@ -50,7 +50,7 @@ func (h *Handler) Get(c *gin.Context) {
 		return
 	}
 
-	varConfig, err := h.service.Get(c.Request.Context(), orgIdParam, benchIdParam, id)
+	varConfig, err := h.service.Get(orgIdParam, benchIdParam, id)
 
 	if err != nil {
 		c.JSON(http.StatusNotFound, gin.H{"error": err.Error()})
@@ -69,7 +69,7 @@ func (h *Handler) List(c *gin.Context) {
 	orgIdParam := c.Param("orgId")
 	benchIdParam := c.Param("benchmark_id")
 
-	varConfigs, err := h.service.List(c.Request.Context(), orgIdParam, benchIdParam)
+	varConfigs, err := h.service.List(orgIdParam, benchIdParam)
 
 	if err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
@@ -97,7 +97,6 @@ func (h *Handler) Update(c *gin.Context) {
 	}
 
 	vc, err := h.service.Update(
-		c.Request.Context(),
 		orgID,
 		benchmarkID,
 		id,
@@ -122,7 +121,7 @@ func (h *Handler) Delete(c *gin.Context) {
 		return
 	}
 
-	err = h.service.Delete(c.Request.Context(), orgIdParam, benchIdParam, id)
+	err = h.service.Delete(orgIdParam, benchIdParam, id)
 
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})

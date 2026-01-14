@@ -1,7 +1,5 @@
 package varconfig
 
-import "context"
-
 type VarConfig struct {
 	ID          int64                  `json: "id"`
 	OrgID       string                 `json: "orgId"`
@@ -12,17 +10,17 @@ type VarConfig struct {
 }
 
 type IRepository interface {
-	Create(ctx context.Context, varConfig *VarConfig) error
-	Get(ctx context.Context, orgID, benchmarkID string, id int64) (*VarConfig, error)
-	List(ctx context.Context, orgID, benchmarkID string) ([]*VarConfig, error)
-	Update(ctx context.Context, varConfig *VarConfig) error
-	Delete(ctx context.Context, orgID, benchmarkID string, id int64) error
+	Create(varConfig *VarConfig) error
+	Get(orgID, benchmarkID string, id int64) (*VarConfig, error)
+	List(orgID, benchmarkID string) ([]*VarConfig, error)
+	Update(varConfig *VarConfig) error
+	Delete(orgID, benchmarkID string, id int64) error
 }
 
 type IService interface {
-	Create(ctx context.Context, orgID, benchmarkID string, payload map[string]interface{}) (*VarConfig, error)
-	Get(ctx context.Context, orgID, benchmarkID string, id int64) (*VarConfig, error)
-	List(ctx context.Context, orgID, benchmarkID string) ([]*VarConfig, error)
-	Update(ctx context.Context, orgID, benchmarkID string, id int64, payload map[string]interface{}) (*VarConfig, error)
-	Delete(ctx context.Context, orgID, benchmarkID string, id int64) error
+	Create(orgID, benchmarkID string, payload map[string]interface{}) (*VarConfig, error)
+	Get(orgID, benchmarkID string, id int64) (*VarConfig, error)
+	List(orgID, benchmarkID string) ([]*VarConfig, error)
+	Update(orgID, benchmarkID string, id int64, payload map[string]interface{}) (*VarConfig, error)
+	Delete(orgID, benchmarkID string, id int64) error
 }

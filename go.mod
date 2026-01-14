@@ -4,7 +4,6 @@ go 1.25.4
 
 require (
 	github.com/Wizzi-Cloud/restwrapper v0.0.0-20251020221013-841b2ba108dc
-	github.com/aws/aws-lambda-go v1.47.0
 	github.com/aws/aws-sdk-go-v2 v1.41.0
 	github.com/aws/aws-sdk-go-v2/config v1.32.6
 	github.com/aws/aws-sdk-go-v2/feature/dynamodb/attributevalue v1.20.29
@@ -15,6 +14,7 @@ require (
 require (
 	github.com/Wizzi-Cloud/apperror v0.0.0-20250403183749-2c2523e95aaf // indirect
 	github.com/Wizzi-Cloud/core_interfaces v0.0.0-20250130182336-a653f9cf22b6 // indirect
+	github.com/aws/aws-lambda-go v1.47.0 // indirect
 	github.com/aws/aws-sdk-go-v2/credentials v1.19.6 // indirect
 	github.com/aws/aws-sdk-go-v2/feature/ec2/imds v1.18.16 // indirect
 	github.com/aws/aws-sdk-go-v2/internal/configsources v1.4.16 // indirect

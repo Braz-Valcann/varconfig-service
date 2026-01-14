@@ -14,6 +14,7 @@ import (
 type Repository struct {
 	client    *dynamodb.Client
 	tableName string
+	context   context.Context
 }
 
 // Assertion
@@ -23,6 +24,7 @@ func New(client *dynamodb.Client, table string) *Repository {
 	return &Repository{
 		client:    client,
 		tableName: table,
+		context:   context.TODO(),
 	}
 }
 
@@ -34,7 +36,7 @@ func sk(id int64) string {
 	return fmt.Sprintf("VAR#%d", id)
 }
 
-func (r *Repository) Create(ctx context.Context, varConfig *varconfig.VarConfig) error {
+func (r *Repository) Create(varConfig *varconfig.VarConfig) error {
 	item := map[string]interface{}{
 		"PK":          pk(varConfig.OrgID, varConfig.BenchmarkID),
 		"SK":          sk(varConfig.ID),
@@ -48,7 +50,7 @@ func (r *Repository) Create(ctx context.Context, varConfig *varconfig.VarConfig)
 
 	av, _ := attributevalue.MarshalMap(item)
 
-	_, err := r.client.PutItem(ctx, &dynamodb.PutItemInput{
+	_, err := r.client.PutItem(r.context, &dynamodb.PutItemInput{
 		TableName: &r.tableName,
 		Item:      av,
 	})
@@ -56,7 +58,7 @@ func (r *Repository) Create(ctx context.Context, varConfig *varconfig.VarConfig)
 	return err
 }
 
-func (r *Repository) Get(ctx context.Context, orgID, benchmarkID string, id int64) (*varconfig.VarConfig, error) {
+func (r *Repository) Get(orgID, benchmarkID string, id int64) (*varconfig.VarConfig, error) {
 
 	key, err := attributevalue.MarshalMap(map[string]string{
 		"PK": pk(orgID, benchmarkID),
@@ -67,7 +69,7 @@ func (r *Repository) Get(ctx context.Context, orgID, benchmarkID string, id int6
 		return nil, err
 	}
 
-	out, err := r.client.GetItem(ctx, &dynamodb.GetItemInput{
+	out, err := r.client.GetItem(r.context, &dynamodb.GetItemInput{
 		TableName: &r.tableName,
 		Key:       key,
 	})
@@ -82,8 +84,8 @@ func (r *Repository) Get(ctx context.Context, orgID, benchmarkID string, id int6
 	return &varConfig, nil
 }
 
-func (r *Repository) List(ctx context.Context, orgID, benchmarkID string) ([]*varconfig.VarConfig, error) {
-	out, err := r.client.Query(ctx, &dynamodb.QueryInput{
+func (r *Repository) List(orgID, benchmarkID string) ([]*varconfig.VarConfig, error) {
+	out, err := r.client.Query(r.context, &dynamodb.QueryInput{
 		TableName:              &r.tableName,
 		KeyConditionExpression: aws.String("PK = :pk"),
 		ExpressionAttributeValues: map[string]types.AttributeValue{
@@ -101,7 +103,7 @@ func (r *Repository) List(ctx context.Context, orgID, benchmarkID string) ([]*va
 	return varConfigs, nil
 }
 
-func (r *Repository) Update(ctx context.Context, varConfig *varconfig.VarConfig) error {
+func (r *Repository) Update(varConfig *varconfig.VarConfig) error {
 	item := map[string]interface{}{
 		"PK":          pk(varConfig.OrgID, varConfig.BenchmarkID),
 		"SK":          sk(varConfig.ID),
@@ -109,12 +111,13 @@ func (r *Repository) Update(ctx context.Context, varConfig *varconfig.VarConfig)
 		"orgId":       varConfig.OrgID,
 		"benchmarkId": varConfig.BenchmarkID,
 		"payload":     varConfig.Payload,
-		"updatedAt":   varConfig.UpdateAt,
+		"createdAt":   varConfig.CreatedAt,
+		"updateAt":    varConfig.UpdateAt,
 	}
 
 	av, _ := attributevalue.MarshalMap(item)
 
-	_, err := r.client.PutItem(ctx, &dynamodb.PutItemInput{
+	_, err := r.client.PutItem(r.context, &dynamodb.PutItemInput{
 		TableName: &r.tableName,
 		Item:      av,
 	})
@@ -122,13 +125,13 @@ func (r *Repository) Update(ctx context.Context, varConfig *varconfig.VarConfig)
 	return err
 }
 
-func (r *Repository) Delete(ctx context.Context, orgID, benchmarkID string, id int64) error {
+func (r *Repository) Delete(orgID, benchmarkID string, id int64) error {
 	key, _ := attributevalue.MarshalMap(map[string]string{
 		"PK": pk(orgID, benchmarkID),
 		"SK": sk(id),
 	})
 
-	_, err := r.client.DeleteItem(ctx, &dynamodb.DeleteItemInput{
+	_, err := r.client.DeleteItem(r.context, &dynamodb.DeleteItemInput{
 		TableName: &r.tableName,
 		Key:       key,
 	})
