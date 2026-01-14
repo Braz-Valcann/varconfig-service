@@ -2,15 +2,11 @@ package benchmark
 
 import (
 	"context"
-	"encoding/base64"
 	"net/http"
 	"strconv"
 
 	"github.com/Braz-Valcann/varconfig-service/internal/domain/varconfig"
 	"github.com/Wizzi-Cloud/restwrapper"
-	ginHandler "github.com/Wizzi-Cloud/restwrapper/gin"
-	eve "github.com/aws/aws-lambda-go/events"
-	"github.com/gin-gonic/gin"
 )
 
 type Handler struct {
@@ -25,78 +21,135 @@ func NewHandler(service varconfig.IService) *Handler {
 func (h *Handler) Handle(w *restwrapper.Wrapper) {
 	switch w.RequestWrapper.Method() {
 	case http.MethodGet:
-		// Verifica se existe o parâmetro "id" na URL para distinguir entre Get e List
 		id, _ := w.RequestWrapper.GetPathParam("id")
+
 		if id != nil && *id != "" {
 			h.Get(w)
 		} else {
 			h.List(w)
 		}
 		return
+
 	}
 }
 
-// Handle pra usar com Gin
-func (h *Handler) HandleGin(c *gin.Context) {
-	var res eve.APIGatewayProxyResponse
+/*
+	func (h *Handler) Create(w *restwrapper.Wrapper) {
+		var req dto.CreateRequest
 
-	wrapper := ginHandler.NewGinWrapper(c, &res)
-	if wrapper == nil {
-		c.AbortWithStatusJSON(http.StatusInternalServerError, gin.H{"error": "wrapper is nil"})
-		return
-	}
-
-	// Executa o handler "core"
-	h.Handle(wrapper)
-
-	// Aplica headers simples
-	for key, value := range res.Headers {
-		c.Header(key, value)
-	}
-
-	// Aplica headers multi-valor (se existir)
-	if len(res.MultiValueHeaders) > 0 {
-		for key, values := range res.MultiValueHeaders {
-			for _, v := range values {
-				c.Writer.Header().Add(key, v)
-			}
-		}
-	}
-
-	// Define status code
-	status := res.StatusCode
-	if status == 0 {
-		status = http.StatusOK
-	}
-
-	// Para 204/304, não envie corpo
-	if status == http.StatusNoContent || status == http.StatusNotModified {
-		c.Status(status)
-		return
-	}
-
-	// Define Content-Type
-	ct := c.Writer.Header().Get("Content-Type")
-	if ct == "" {
-		ct = "application/json"
-	}
-
-	// Processa body
-	var payload []byte
-	if res.IsBase64Encoded {
-		decoded, err := base64.StdEncoding.DecodeString(res.Body)
-		if err != nil {
-			c.AbortWithStatusJSON(http.StatusInternalServerError, gin.H{"error": "invalid base64 body"})
+		if err := w.ShouldBindJSON(&req); err != nil {
+			w.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 			return
 		}
-		payload = decoded
-	} else {
-		payload = []byte(res.Body)
+
+		orgID := w.Param("orgId")
+		benchmarkID := w.Param("benchmark_id")
+
+		varConfig, err := h.service.Create(c.Request.Context(), orgID, benchmarkID, req.Payload)
+
+		if err != nil {
+			c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+			return
+		}
+
+		c.JSON(http.StatusCreated, varConfig)
+
+}
+
+	func (h *Handler) Get(c *gin.Context) {
+		idParam := c.Param("id")
+		orgIdParam := c.Param("orgId")
+		benchIdParam := c.Param("benchmark_id")
+
+		id, err := strconv.ParseInt(idParam, 10, 64)
+		if err != nil {
+			c.JSON(http.StatusBadRequest, gin.H{"error": "invalid id"})
+			return
+		}
+
+		varConfig, err := h.service.Get(c.Request.Context(), orgIdParam, benchIdParam, id)
+
+		if err != nil {
+			c.JSON(http.StatusNotFound, gin.H{"error": err.Error()})
+			return
+		}
+
+		if varConfig == nil {
+			c.JSON(http.StatusInternalServerError, gin.H{"error": "Varconfig não existe!"})
+			return
+		}
+
+		c.JSON(http.StatusOK, varConfig)
 	}
 
-	// Escreve a resposta crua, sem re-serializar body string JSON.
-	c.Data(status, ct, payload)
+	func (h *Handler) List(c *gin.Context) {
+		orgIdParam := c.Param("orgId")
+		benchIdParam := c.Param("benchmark_id")
+
+		varConfigs, err := h.service.List(c.Request.Context(), orgIdParam, benchIdParam)
+
+		if err != nil {
+			c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+			return
+		}
+
+		c.JSON(http.StatusOK, varConfigs)
+	}
+
+	func (h *Handler) Update(c *gin.Context) {
+		var req dto.UpdateRequest
+		if err := c.ShouldBindJSON(&req); err != nil {
+			c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+			return
+		}
+
+		orgID := c.Param("orgId")
+		benchmarkID := c.Param("benchmark_id")
+
+		idParam := c.Param("id")
+		id, err := strconv.ParseInt(idParam, 10, 64)
+		if err != nil {
+			c.JSON(http.StatusBadRequest, gin.H{"error": "invalid id"})
+			return
+		}
+
+		vc, err := h.service.Update(
+			c.Request.Context(),
+			orgID,
+			benchmarkID,
+			id,
+			req.Payload,
+		)
+		if err != nil {
+			c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+			return
+		}
+
+		c.JSON(http.StatusOK, vc)
+	}
+
+	func (h *Handler) Delete(c *gin.Context) {
+		orgIdParam := c.Param("orgId")
+		benchIdParam := c.Param("benchmark_id")
+		idParam := c.Param("id")
+
+		id, err := strconv.ParseInt(idParam, 10, 64)
+		if err != nil {
+			c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+			return
+		}
+
+		err = h.service.Delete(c.Request.Context(), orgIdParam, benchIdParam, id)
+
+		if err != nil {
+			c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+			return
+		}
+
+		c.Status(http.StatusNoContent)
+
 }
+*/
 func (h *Handler) Get(w *restwrapper.Wrapper) {
 	// Extrai path parameters manualmente usando GetPathParam, eu não consegui usar o
 	orgID, _ := w.RequestWrapper.GetPathParam("orgId")
