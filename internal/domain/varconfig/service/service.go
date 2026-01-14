@@ -1,7 +1,6 @@
 package service
 
 import (
-	"context"
 	"time"
 
 	"github.com/Braz-Valcann/varconfig-service/internal/domain/varconfig"
@@ -17,7 +16,7 @@ func New(repo varconfig.IRepository) *Service {
 	return &Service{repo: repo}
 }
 
-func (s *Service) Create(ctx context.Context, orgID, benchmarkID string, payload map[string]interface{}) (*varconfig.VarConfig, error) {
+func (s *Service) Create(orgID, benchmarkID string, payload map[string]interface{}) (*varconfig.VarConfig, error) {
 
 	now := time.Now().UTC().Format(time.RFC3339)
 
@@ -30,20 +29,20 @@ func (s *Service) Create(ctx context.Context, orgID, benchmarkID string, payload
 		UpdateAt:    now,
 	}
 
-	err := s.repo.Create(ctx, vc)
+	err := s.repo.Create(vc)
 
 	return vc, err
 }
 
-func (s *Service) Get(ctx context.Context, orgID, benchmarkID string, id int64) (*varconfig.VarConfig, error) {
-	return s.repo.Get(ctx, orgID, benchmarkID, id)
+func (s *Service) Get(orgID, benchmarkID string, id int64) (*varconfig.VarConfig, error) {
+	return s.repo.Get(orgID, benchmarkID, id)
 }
 
-func (s *Service) List(ctx context.Context, orgID, benchmarkID string) ([]*varconfig.VarConfig, error) {
-	return s.repo.List(ctx, orgID, benchmarkID)
+func (s *Service) List(orgID, benchmarkID string) ([]*varconfig.VarConfig, error) {
+	return s.repo.List(orgID, benchmarkID)
 }
 
-func (s *Service) Update(ctx context.Context, orgID, benchmarkID string, id int64, payload map[string]interface{}) (*varconfig.VarConfig, error) {
+func (s *Service) Update(orgID, benchmarkID string, id int64, payload map[string]interface{}) (*varconfig.VarConfig, error) {
 
 	vc := &varconfig.VarConfig{
 		ID:          id,
@@ -53,10 +52,10 @@ func (s *Service) Update(ctx context.Context, orgID, benchmarkID string, id int6
 		UpdateAt:    time.Now().UTC().Format(time.RFC3339),
 	}
 
-	err := s.repo.Update(ctx, vc)
+	err := s.repo.Update(vc)
 	return vc, err
 }
 
-func (s *Service) Delete(ctx context.Context, orgID, benchmarkID string, id int64) error {
-	return s.repo.Delete(ctx, orgID, benchmarkID, id)
+func (s *Service) Delete(orgID, benchmarkID string, id int64) error {
+	return s.repo.Delete(orgID, benchmarkID, id)
 }
